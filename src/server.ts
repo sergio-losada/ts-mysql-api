@@ -1,8 +1,10 @@
 import http from 'http';
-import express, { Express } from 'express';
+import express from 'express';
 import morgan from 'morgan';
-import chalk from 'chalk'; // for easy 
-import routes from './routes';
+import chalk from 'chalk';
+import routes from './routes/test-routes';
+import authRoutes from './routes/auth-routes';
+import { authenticateToken } from './middleware/auth';
 
 const app = express();
 
@@ -31,8 +33,11 @@ app.use(morgan(':methodColored :url :status :res[content-length] - :response-tim
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-/** Routes */
-app.use('/', routes);
+// Rutas públicas
+app.use('/auth', authRoutes);
+
+// Rutas protegidas
+app.use('/', authenticateToken, routes);
 
 /** Error handling */
 app.use((req, res, next) => {
